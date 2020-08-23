@@ -90,7 +90,7 @@ app.post("/greatWebService/", (req, res) => {
       for (let i = 0; i < newData.length; ++i) {
         data.push({ id: newData[i].id, payload: newData[i].payload });
       } // End For
-      res.status(200).json({ status: "200", error: "Valid Input" });
+      res.status(200).json({ status: "200", message: "Valid Input" });
     } // End if
   } catch (err) {
     res.status(404).json({ status: "404", error: err.message });
