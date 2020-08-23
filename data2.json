@@ -5,5 +5,6 @@
     "payload": "dato4"
   },
   { "id": 7, "payload": "dato7" },
-  { "id": 8, "payload": "dato8" }
+  { "id": 8, "payload": "dato8" },
+  { "payload": "dato8" }
 ]

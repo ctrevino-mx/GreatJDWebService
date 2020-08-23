@@ -1,15 +1,19 @@
 const express = require("express");
 const app = express();
 const fs = require("fs");
+const joi = require("joi");
 app.use(express.urlencoded({ extended: true }));
 
+// Loading initial data
 let rawData = fs.readFileSync("data.json");
 let data = JSON.parse(rawData);
 
+// Send all data of json object
 app.get("/greatWebService/getEverything", (req, res) => {
   res.json(data);
 });
 
+// Route to return json object by value
 app.get("/greatWebService/getByKey/:key", (req, res) => {
   function findObject(pkey) {
     //search array for key
@@ -22,11 +26,13 @@ app.get("/greatWebService/getByKey/:key", (req, res) => {
     pdata.push({ id: pkey, payload: xpayload });
     return pdata;
   } // End function
-  // Calling function
+
+  // Calling function and sending resultant object
   const obj = findObject(req.params.key);
   res.json(obj);
 });
 
+// Route the get a json object by value
 app.get("/greatWebService/getByValue/:value", (req, res) => {
   function findObject(pValue) {
     //search array for Value
@@ -39,26 +45,50 @@ app.get("/greatWebService/getByValue/:value", (req, res) => {
     pdata.push({ payload: pValue, id: keys });
     return pdata;
   } // End function
-  // Calling function
+
+  // Calling function and sending resultant object
   const obj = findObject(req.params.value);
   res.json(obj);
 });
 
-//put this above your show.ejs file
+//Rendering the new.ejs to provide the json file to load
 app.get("/greatWebService/new", (req, res) => {
   res.render("new.ejs");
 });
 
 app.post("/greatWebService/", (req, res) => {
-  //   req.body.id = parseInt(req.body.id);
-  //   data.push(req.body);
-  //   res.send("data received");
-  const rawData = fs.readFileSync(req.body.fileName);
-  const newData = JSON.parse(rawData);
-  for (let i = 0; i < newData.length; ++i) {
-    data.push({ id: newData[i].id, payload: newData[i].payload });
-  } // End For
-  res.send("data received");
+  try {
+    // Load the new file
+    const rawData = fs.readFileSync(req.body.fileName);
+    const newData = JSON.parse(rawData);
+
+    // Define the schema for JSON file Array of objects
+    let fileObject = joi.object({
+      id: joi.number().required(),
+      payload: joi.string().required(),
+    });
+    let fileArray = joi.array().items(fileObject);
+
+    // Validate the structure of the file against the shema
+    // If error found then throw an error
+    let test = fileArray.validate(newData);
+    if (test.error) {
+      throw test.error;
+    }
+
+    // If file with empty array throw an error
+    // Else load the objects in the app object and send status 200
+    if (newData.length === 0) {
+      throw "Empty Array";
+    } else {
+      for (let i = 0; i < newData.length; ++i) {
+        data.push({ id: newData[i].id, payload: newData[i].payload });
+      } // End For
+      res.status(200).json({ status: "200", error: "Valid Input" });
+    } // End if
+  } catch (err) {
+    res.status(404).json({ status: "404", error: err.message });
+  } // End try
 });
 
 app.listen(3000, () => {
