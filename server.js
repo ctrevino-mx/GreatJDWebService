@@ -2,18 +2,23 @@ const express = require("express");
 const app = express();
 const fs = require("fs");
 const joi = require("joi");
+const sortObjectsArray = require("sort-objects-array");
 app.use(express.urlencoded({ extended: true }));
 
 // Loading initial data
 let rawData = fs.readFileSync("data.json");
 let data = JSON.parse(rawData);
 
-// Send all data of json object
+// ROUTE Send all data of json object
 app.get("/greatWebService/getEverything", (req, res) => {
-  res.json(data);
+  if (req.headers.orderkey && req.headers.ordermode) {
+    res.json(
+      sortObjectsArray(data, req.headers.orderkey, req.headers.ordermode)
+    );
+  } else res.json(data);
 });
 
-// Route to return json object by value
+// ROUTE to return json object by value
 app.get("/greatWebService/getByKey/:key", (req, res) => {
   function findObject(pkey) {
     //search array for key
@@ -32,7 +37,7 @@ app.get("/greatWebService/getByKey/:key", (req, res) => {
   res.json(obj);
 });
 
-// Route the get a json object by value
+// ROUTE the get a json object by value
 app.get("/greatWebService/getByValue/:value", (req, res) => {
   function findObject(pValue) {
     //search array for Value
@@ -51,11 +56,12 @@ app.get("/greatWebService/getByValue/:value", (req, res) => {
   res.json(obj);
 });
 
-//Rendering the new.ejs to provide the json file to load
+//ROUTE Rendering the new.ejs to provide the json file to load
 app.get("/greatWebService/new", (req, res) => {
   res.render("new.ejs");
 });
 
+// ROUTE to appende new objects from json file
 app.post("/greatWebService/", (req, res) => {
   try {
     // Load the new file

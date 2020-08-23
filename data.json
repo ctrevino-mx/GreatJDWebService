@@ -1,9 +1,9 @@
 [
+  { "id": 15, "payload": "dato0" },
   { "id": 1, "payload": "dato1" },
   {
     "id": 2,
     "payload": "dato2"
   },
-  { "id": 3, "payload": "dato3" },
-  { "id": 3, "payload": "dato1" }
+  { "id": 3, "payload": "dato3" }
 ]
